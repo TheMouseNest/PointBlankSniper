@@ -1,4 +1,4 @@
-## Interface: 110105, 110107
+## Interface: 110200, 50501
 ## Title: Point Blank Sniper
 ## Version: @project-version@
 ## Author: plusmouse
