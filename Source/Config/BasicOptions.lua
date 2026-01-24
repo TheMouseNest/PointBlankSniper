@@ -16,7 +16,7 @@ function PointBlankSniperConfigBasicOptionsFrameMixin:OnLoad()
   self.OnRefresh = function() end
 
   local category = Settings.RegisterCanvasLayoutCategory(self, self.name)
-  category.ID = self.name
+  PointBlankSniper.SettingsCategory = category
   Settings.RegisterAddOnCategory(category)
 
   Auctionator.EventBus:RegisterSource(self, "PointBlankSniperBasicOptions")

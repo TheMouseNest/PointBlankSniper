@@ -46,3 +46,27 @@ function PointBlankSniper.ItemKeyCache.SetupHooks()
     end)
   end)
 end
+
+function PointBlankSniper.ItemKeyCache.AddItemID(itemID)
+  if not PointBlankSniper.ItemKeyCache.State.newKeys then
+    PointBlankSniper.Utilities.Message("Auction House tab with keys scanning not opened yet")
+    return
+  end
+  Item:CreateFromItemID(itemID):ContinueOnItemLoad(function()
+    local itemName, itemLink, _, itemLevel = C_Item.GetItemInfo(itemID)
+    local keyString = itemID .. " 0 " .. itemLevel .. " 0"
+    table.insert(PointBlankSniper.ItemKeyCache.State.newKeys.itemKeyStrings, keyString)
+    table.insert(PointBlankSniper.ItemKeyCache.State.newKeys.names, itemName)
+    PointBlankSniper.Utilities.Message("Queued [" .. itemName .. "], [" .. keyString .. "]")
+  end)
+end
+
+SlashCommandUtil.CheckAddSlashCommand("PBSID", SLASH_COMMAND_CATEGORY.ADDON, function(text)
+  local id = tonumber(text)
+  if not id or id <= 0 then
+    PointBlankSniper.Utilities.Message("Invalid item ID")
+  end
+
+  PointBlankSniper.ItemKeyCache.AddItemID(id)
+end)
+SLASH_PBSID1 = "/pbsid"
