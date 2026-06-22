@@ -56,20 +56,33 @@ function PointBlankSniperConfigBasicOptionsFrameMixin:ReducePrices()
   for index, search in ipairs(PointBlankSniper.Utilities.ConvertList(list)) do
     if not search.minItemLevel and not search.maxItemLevel then
       local keys = PointBlankSniper.Scan.GetItemKeys({search})
-      local itemIDSeen
-      local mismatch = false
+      local cagePrice, firstPrice
       for _, itemKey in ipairs(keys) do
-        itemIDSeen = itemIDSeen or itemKey.itemID
-        if itemKey.itemID ~= itemIDSeen then
-          mismatch = true
+        local tmp = priceSource:GetValueUsed(itemKey)
+        if firstPrice then
+          firstPrice = math.min(firstPrice, tmp)
+        else
+          firstPrice = tmp
+        end
+        if itemKey.itemID == Auctionator.Constants.PET_CAGE_ID then
+          local tmp = priceSource:GetValueUsed(itemKey)
+          if tmp then
+            if cagePrice then
+              cagePrice = math.min(cagePrice, tmp)
+            else
+              cagePrice = tmp
+            end
+          end
         end
       end
-      if itemIDSeen ~= nil and not mismatch then
+      if cagePrice then
+        firstPrice = cagePrice
+      end
+      if firstPrice then
         if search.price then
           local realSearch = Auctionator.Search.SplitAdvancedSearch(search.rawSearchTerm)
-          local cmp = priceSource:GetValueUsed(keys[1])
-          if cmp then
-            realSearch.maxPrice = math.min(cmp, realSearch.maxPrice)
+          if firstPrice then
+            realSearch.maxPrice = math.min(firstPrice, realSearch.maxPrice)
             list:AlterItem(index, Auctionator.Search.ReconstituteAdvancedSearch(realSearch))
             PointBlankSniper.Utilities.Message(POINT_BLANK_SNIPER_L_CONFIG_ADJUSTED_X_TO_X:format(Auctionator.Search.PrettifySearchString(search.rawSearchTerm), GetMoneyString(realSearch.maxPrice)))
           end
